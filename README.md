@@ -1,3 +1,4 @@
+
 # Heart Disease Prediction MLOps Project 
 ## 📊 Section 5: Data Drift Analysis (Evidently)
 
@@ -9,3 +10,5 @@ At a 15.38% overall feature drift share, the dataset is still considered structu
 
 ### 3. What action would you recommend?
 **Continue Monitoring.** Since the overall dataset drift status is marked as stable and falls safely below our operational threshold of 30%, immediate retraining is not required. We should continue monitoring the data stream, but prepare to trigger an automated retraining pipeline if the drift share crosses the 30% threshold or if model accuracy drops.
+
+
