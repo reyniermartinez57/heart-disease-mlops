@@ -1,0 +1,54 @@
+ name: MLOps Pipeline Automation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test_stage:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Run pytest test panel
+      run: |
+        python -m pytest tests/ -v
+
+  train_stage:
+    needs: test_stage  # Ensures training only runs if tests pass perfectly
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run preprocessing stage
+      run: |
+        python src/preprocessing.py
+
+    - name: Execute model training and verify threshold metrics
+      run: |
+        python src/train.py
