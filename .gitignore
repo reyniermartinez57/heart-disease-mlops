@@ -1,0 +1,36 @@
+# =====================================================================
+# Sprint 17 MLOps Project Guardrails (.gitignore)
+# =====================================================================
+
+# 1. Dataset Files & Directories
+# Excludes raw/processed data paths to satisfy the data decoupling requirement
+*.csv
+*.xlsx
+*.parquet
+data/
+datasets/
+
+# 2. Model Artifacts & MLflow Local Data
+# Excludes compiled weights, models, and local tracking databases
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.onnx
+models/
+mlruns/
+.mlflow/
+
+# 3. Python Cache & Compilation Noise
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 4. Coverage and Environment Variables
+.coverage
+htmlcov/
+.env
+venv/
+mlops_env/
