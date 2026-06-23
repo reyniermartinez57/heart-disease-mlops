@@ -5,7 +5,9 @@ import pandas as pd
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+# Import your new dedicated evaluation module
+from src.evaluation import evaluate_model_performance, verify_performance_thresholds
 
 def train_model():
     # 1. Load configurations
@@ -35,22 +37,26 @@ def train_model():
         )
         model.fit(X_train, y_train)
         
-        # 4. Make predictions and compute required evaluation metrics
-        predictions = model.predict(X_val)
-        acc = accuracy_score(y_val, predictions)
-        precision = precision_score(y_val, predictions)
-        recall = recall_score(y_val, predictions)
+        # 4. Use the dedicated evaluation module to compute metrics
+        print("Evaluating model performance via modular framework...")
+        metrics = evaluate_model_performance(model, X_val, y_val)
         
         # 5. Log hyperparameters to MLflow
         mlflow.log_params(config["model_params"])
         mlflow.log_param("test_size", config["data_params"]["test_size"])
         
-        # 6. Log evaluation metrics to MLflow
-        mlflow.log_metric("accuracy", acc)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
+        # 6. Log evaluation metrics dictionary dynamically to MLflow
+        for metric_name, metric_value in metrics.items():
+            mlflow.log_metric(metric_name, metric_value)
+            
+        # 7. Run threshold check to verify model safety for deployment
+        # Uses minimum 75% accuracy matching the Sprint 17 baseline check
+        is_safe, message = verify_performance_thresholds(metrics, min_accuracy=0.75)
+        print(message)
+        if not is_safe:
+            raise ValueError("Build Failed: Model metrics dropped below production quality minimums.")
         
-        # 7. Log the model artifact itself
+        # 8. Log the model artifact itself
         mlflow.sklearn.log_model(model, "model")
         
         # Local save as well
@@ -58,7 +64,7 @@ def train_model():
         with open(model_output_path, "wb") as f:
             pickle.dump(model, f)
             
-        print(f"Run Logged! Accuracy: {acc:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}")
+        print(f"Run Logged Successfully! Summary: {metrics}")
 
 if __name__ == "__main__":
     train_model()
