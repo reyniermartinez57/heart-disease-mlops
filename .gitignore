@@ -34,3 +34,4 @@ htmlcov/
 .env
 venv/
 mlops_env/
+/data
